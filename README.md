@@ -9,3 +9,16 @@ docker run -d \
 
 
 docker exec -it sky_survey_db psql -U admin -c "CREATE DATABASE sky_survey_db;"
+
+
+const csrfToken = Cookies.get("csrf_access_token");
+
+fetch("/api/secure-endpoint", {
+  method: "POST",
+  credentials: "include", // important!
+  headers: {
+    "X-CSRF-TOKEN": csrfToken,
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(data)
+});

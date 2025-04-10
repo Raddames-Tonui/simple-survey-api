@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
 from dotenv import load_dotenv
+from flask_jwt_extended import JWTManager
 
 # Load env vars
 load_dotenv()
@@ -21,10 +22,19 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'supersecretkey')
 
+    # JWT Configuration for Cookie-Based Auth
+    app.config["JWT_SECRET_KEY"] = os.getenv('JWT_SECRET_KEY', 'your-secret-key')  
+    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+    app.config["JWT_ACCESS_COOKIE_PATH"] = "/" # Path where the access token cookie is valid
+    app.config["JWT_REFRESH_COOKIE_PATH"] = "/token/refresh"
+    app.config["JWT_COOKIE_SECURE"] = False  #  True in production with HTTPS
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = True  # CSRF protection
+
     # Init extensions
     db.init_app(app)
     migrate.init_app(app, db)
     CORS(app)
+    jwt = JWTManager(app)
 
     # Import models
     from models.survey import Survey
@@ -44,10 +54,12 @@ def create_app():
     from routes.response import response
     from routes.fetch_responses import answers
     from routes.download_certificates import certificates
+    from routes.authentication import auth
     app.register_blueprint(questions, url_prefix='/api')
     app.register_blueprint(response, url_prefix='/api')
     app.register_blueprint(answers, url_prefix='/api')
     app.register_blueprint(certificates, url_prefix='/api')
+    app.register_blueprint(auth, url_prefix='/auth')
 
     return app
 
