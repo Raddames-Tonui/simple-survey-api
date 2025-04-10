@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+faker = "*"
+flask-sqlalchemy = "*"
+flask-cors = "*"
+psycopg2-binary = "*"
+flask-migrate = "*"
+python-dotenv = "*"
+sqlalchemy-serializer = "*"
+gunicorn = "*"
+firebase-admin = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"
