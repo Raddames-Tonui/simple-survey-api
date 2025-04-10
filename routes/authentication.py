@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import  jwt_required, get_jwt_identity, create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies, unset_jwt_cookies
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies, unset_jwt_cookies
 from models.user import User
 
 auth = Blueprint('auth', __name__)
@@ -32,13 +32,13 @@ def login_user():
     return response
 
 # Refresh Token EndPoint
-@auth.route('/token/refresh', method=['POST'])
+@auth.route('/token/refresh', methods=['POST'])  
 @jwt_required(refresh=True)
 def refresh():
     identity = get_jwt_identity() 
     access_token = create_access_token(identity=identity)
     response = jsonify({'message' : 'Token refreshed'})
-    set_access_cookies(response=access_token)
+    set_access_cookies(response, access_token) 
     return response
 
 
