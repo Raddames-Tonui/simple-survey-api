@@ -61,3 +61,5 @@ def get_responses():
         "page_size": per_page,
         "total_count": paginated.total
     }), 200
+
+
