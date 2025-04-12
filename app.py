@@ -29,11 +29,14 @@ def create_app():
     app.config["JWT_REFRESH_COOKIE_PATH"] = "/token/refresh"
     app.config["JWT_COOKIE_SECURE"] = False  #  True in production with HTTPS
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False  # CSRF protection
+    app.config["JWT_COOKIE_SAMESITE"] = "Lax"  # Allow cross-origin cookies in dev
+
 
     # Init extensions
     db.init_app(app)
     migrate.init_app(app, db)
-    CORS(app)
+    CORS(app, supports_credentials=True, origins=["http://localhost:5173"])  # Vite default
+
     jwt = JWTManager(app)
 
     # Import models

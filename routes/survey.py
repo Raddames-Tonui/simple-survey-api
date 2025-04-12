@@ -4,14 +4,17 @@ from app import db
 from models.survey import Survey
 from models.question import Question
 from models.option import Option
+from sqlalchemy.orm import joinedload
+
 
 survey = Blueprint('survey_bp', __name__)
 
 @survey.route('/surveys', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def create_survey():
     data = request.get_json()
-    user_id = get_jwt_identity()
+    # user_id = get_jwt_identity()
+    user_id = "51"
 
     try:
         # Validate required survey fields

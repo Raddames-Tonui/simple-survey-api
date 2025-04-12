@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies, unset_jwt_cookies
 from models.user import User
 from app import db
 import json
@@ -23,15 +23,16 @@ def login_user():
         return jsonify({'message': 'Invalid email or password'}), 401
 
     # Create access and refresh tokens
-    access_token = create_access_token(identity=str(user.id))  
-    refresh_token = create_refresh_token(identity=str(user.id))  
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
 
-    response = jsonify({'message': 'Login successful', 'user': user.serialize()})
-    set_access_cookies(response, access_token)
-    set_refresh_cookies(response, refresh_token)
-
-    # Store the user as a stringified JSON in the cookie
-    response.set_cookie("user", json.dumps(user.serialize()), path="/")
+    # Prepare the response with the tokens and user data
+    response = jsonify({
+        'message': 'Login successful',
+        'user': user.serialize(),
+        'access_token': access_token,
+        'refresh_token': refresh_token,
+    })
 
     return response
 
