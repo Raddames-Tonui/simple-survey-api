@@ -9,6 +9,7 @@ class Question(db.Model):
     required = db.Column(db.Boolean, default=True, nullable=False)
     text = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=True)
+    order = db.Column(db.Integer, nullable=False)
 
     survey_id = db.Column(db.Integer, db.ForeignKey('surveys.id'), nullable=False)
     survey = db.relationship('Survey', back_populates='questions')
@@ -26,5 +27,6 @@ class Question(db.Model):
             'required': self.required,
             'type': self.type,
             'survey_id': self.survey_id,
+            'order': self.order,
             'options': [option.serialize() for option in self.options]  
         }
