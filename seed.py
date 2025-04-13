@@ -15,7 +15,7 @@ def seed_admin_user():
         name="Admin User",
         role="admin"
     )
-    admin_user.set_password("adminpassword") 
+    admin_user.set_password("123") 
     db.session.add(admin_user)
     db.session.commit()
     print("Admin user created.")
@@ -38,31 +38,31 @@ def seed_questions(survey_id):
     questions_data = [
         {
             "name": "full_name", "type": "text", "required": True,
-            "text": "What is your full name?", "description": "[Surname] [First Name] [Other Names]"
+            "text": "What is your full name?", "description": "[Surname] [First Name] [Other Names]", "order": 1
         },
         {
             "name": "email_address", "type": "email", "required": True,
-            "text": "What is your email address?", "description": ""
+            "text": "What is your email address?", "description": "", "order": 2
         },
         {
             "name": "description", "type": "textarea", "required": True,
-            "text": "Tell us a bit more about yourself", "description": ""
+            "text": "Tell us a bit more about yourself", "description": "", "order": 3
         },
         {
             "name": "gender", "type": "radio", "required": True,
-            "text": "What is your gender?", "description": "",
+            "text": "What is your gender?", "description": "", "order": 4,
             "options": ["Male", "Female", "Other"]
         },
         {
             "name": "programming_stack", "type": "checkbox", "required": True,
             "text": "What programming stack are you familiar with?",
-            "description": "You can select multiple",
+            "description": "You can select multiple", "order": 5,
             "options": ["React JS", "Angular JS", "Vue JS", "SQL", "Postgres", "MySQL", "MSSQL", "Java", "PHP", "Go", "Rust"]
         },
         {
             "name": "certificates", "type": "file", "required": True,
             "text": "Upload any of your certificates?", 
-            "description": "You can upload multiple (.pdf)"
+            "description": "You can upload multiple (.pdf)", "order": 6
         }
     ]
 
@@ -73,6 +73,7 @@ def seed_questions(survey_id):
             required=q["required"],
             text=q["text"],
             description=q["description"],
+            order=q["order"],  # Set the order here
             survey_id=survey_id
         )
         db.session.add(question)
@@ -85,6 +86,7 @@ def seed_questions(survey_id):
 
     db.session.commit()
     print("Questions and options seeded successfully.")
+
 
 def seed_sample_submission(survey_id, admin_id):
     # Create a sample user submission for the admin user
@@ -119,7 +121,8 @@ def seed_sample_submission(survey_id, admin_id):
     # Add certificates (if any)
     certificates_data = ["Admin Certificate 19-08-2023.pdf", "Admin Certification.pdf"]
     for cert_file in certificates_data:
-        certificate = Certificate(file_url="/path/to/certificates/" + cert_file, submission_id=submission.id)
+        certificate = Certificate(submission_id=submission.id)
+        certificate.save_metadata(file_url="/path/to/certificates/" + cert_file, file_name=cert_file)
         db.session.add(certificate)
 
     db.session.commit()
