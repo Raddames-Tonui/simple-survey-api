@@ -63,24 +63,31 @@ def signup():
     email = data.get('email')
     name = data.get('name')
     password = data.get('password')
-    role = data.get('role', 'viewer') 
-    
-    # Validate the input
+
+    # Force role to "viewer"
+    role = 'viewer'
+
+    # Validate input
     if not email or not name or not password:
         return jsonify({"message": "Missing required fields"}), 400
 
-    if role not in ['admin', 'viewer']:
-        return jsonify({"message": "Invalid role. Only 'admin' or 'viewer' are allowed."}), 400
-
-    existing_user = User.query.filter_by(email=email).first()
-    if existing_user:
+    if User.query.filter_by(email=email).first():
         return jsonify({"message": "Email already in use"}), 400
 
-    # Create a new user object
+    # Create and save new user
     user = User(email=email, name=name, role=role)
-    user.set_password(password) 
-
+    user.set_password(password)
     db.session.add(user)
     db.session.commit()
 
-    return jsonify({"message": "User created successfully"}), 201
+    # Generate tokens
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
+
+    # Return response with tokens and user data
+    return jsonify({
+        "message": "User created successfully",
+        "user": user.serialize(),
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+    }), 201

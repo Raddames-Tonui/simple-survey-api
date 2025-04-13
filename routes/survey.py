@@ -6,16 +6,19 @@ from models.question import Question
 from models.option import Option
 from sqlalchemy.orm import joinedload
 
-
 survey = Blueprint('survey_bp', __name__)
 
 @survey.route('/surveys', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def create_survey():
     data = request.get_json()
-    # user_id = get_jwt_identity()
-    user_id = "51"
-
+    user_id = get_jwt_identity()
+    
+    # Log the incoming data using print
+    print("Received survey data:", data)
+    
+    # Or, using logging:
+    
     try:
         # Validate required survey fields
         title = data.get('title')
@@ -30,13 +33,13 @@ def create_survey():
             return jsonify({"error": "At least one question is required"}), 400
 
         # Create Survey
-        survey = Survey(
+        survey_obj = Survey(
             title=title,
             description=description,
             is_published=is_published,
             created_by=user_id
         )
-        db.session.add(survey)
+        db.session.add(survey_obj)
         db.session.flush()
 
         for q in questions_data:
@@ -57,36 +60,38 @@ def create_survey():
             if question_type not in ['radio', 'checkbox']:
                 options = []
 
-            question = Question(
+            question_obj = Question(
                 name=q['name'],
                 type=question_type,
                 required=q.get('required', False),
                 text=q['text'],
                 description=q.get('description', ''),
                 order=q['order'],
-                survey_id=survey.id
+                survey_id=survey_obj.id
             )
-            db.session.add(question)
+            db.session.add(question_obj)
             db.session.flush()
 
             # Add options if valid
             for opt_value in options:
                 if isinstance(opt_value, str) and opt_value.strip():
-                    option = Option(
+                    option_obj = Option(
                         value=opt_value.strip(),
-                        question_id=question.id
+                        question_id=question_obj.id
                     )
-                    db.session.add(option)
+                    db.session.add(option_obj)
 
         db.session.commit()
         return jsonify({
             "message": "Survey created successfully",
-            "survey_id": survey.id
+            "survey_id": survey_obj.id
         }), 201
 
     except Exception as e:
         db.session.rollback()
+        print("Error in create_survey:", str(e))
         return jsonify({"error": str(e)}), 500
+
 
 
 
