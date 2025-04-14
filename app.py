@@ -22,18 +22,15 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'supersecretkey')
 
-    # JWT Configuration for Cookie-Based Auth
+    # JWT Configuration for Header-Based Auth
     app.config["JWT_SECRET_KEY"] = os.getenv('JWT_SECRET_KEY', 'your-secret-key')  
-    app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-    app.config["JWT_ACCESS_COOKIE_PATH"] = "/" # Path where the access token cookie is valid
-    app.config["JWT_REFRESH_COOKIE_PATH"] = "/token/refresh"
-    app.config["JWT_COOKIE_SECURE"] = False  #  True in production with HTTPS
-    app.config["JWT_COOKIE_CSRF_PROTECT"] = True  # CSRF protection
+    app.config["JWT_TOKEN_LOCATION"] = ["headers"]  # Change this to headers instead of cookies
 
     # Init extensions
     db.init_app(app)
     migrate.init_app(app, db)
-    CORS(app)
+    CORS(app, supports_credentials=True, origins=["http://localhost:5173"]) 
+
     jwt = JWTManager(app)
 
     # Import models
@@ -55,10 +52,12 @@ def create_app():
     from routes.fetch_responses import answers
     from routes.download_certificates import certificates
     from routes.authentication import auth
+    from routes.survey import survey
     app.register_blueprint(questions, url_prefix='/api')
     app.register_blueprint(response, url_prefix='/api')
     app.register_blueprint(answers, url_prefix='/api')
     app.register_blueprint(certificates, url_prefix='/api')
+    app.register_blueprint(survey, url_prefix='/api')
     app.register_blueprint(auth, url_prefix='/auth')
 
     return app

@@ -1,8 +1,8 @@
-"""initial migrate
+"""Initial migration
 
-Revision ID: 819c7b5a7b92
+Revision ID: 0f0dd3aae226
 Revises: 
-Create Date: 2025-04-09 13:45:28.387007
+Create Date: 2025-04-13 21:41:50.299384
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '819c7b5a7b92'
+revision = '0f0dd3aae226'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -46,6 +46,7 @@ def upgrade():
     sa.Column('required', sa.Boolean(), nullable=False),
     sa.Column('text', sa.String(length=200), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('order', sa.Integer(), nullable=False),
     sa.Column('survey_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['survey_id'], ['surveys.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -54,7 +55,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('date_submitted', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.Column('survey_id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['survey_id'], ['surveys.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -62,6 +63,8 @@ def upgrade():
     op.create_table('certificates',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('file_url', sa.String(length=255), nullable=False),
+    sa.Column('file_name', sa.String(length=255), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('submission_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['submission_id'], ['submissions.id'], ),
     sa.PrimaryKeyConstraint('id')
