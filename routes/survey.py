@@ -6,6 +6,8 @@ from models.question import Question
 from models.option import Option
 from sqlalchemy.orm import joinedload
 
+
+
 survey = Blueprint('survey_bp', __name__)
 
 @survey.route('/surveys', methods=['POST'])
@@ -118,8 +120,14 @@ def get_questions_by_survey(survey_id):
     if not survey:
         return jsonify({"error": "Survey not found or not published"}), 404
 
-    # Fetch questions related to the specified published survey ID
-    questions = Question.query.filter_by(survey_id=survey.id).options(joinedload(Question.survey)).all()
+    # Fetch questions for this survey ordered by `order`
+    questions = (
+        Question.query
+        .filter_by(survey_id=survey.id)
+        .options(joinedload(Question.survey))
+        .order_by(Question.order.asc())  
+        .all()
+    )
 
     serialized_questions = [
         {
@@ -132,3 +140,4 @@ def get_questions_by_survey(survey_id):
     ]
     
     return jsonify({'questions': serialized_questions}), 200
+
