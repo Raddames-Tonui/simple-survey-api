@@ -47,18 +47,11 @@ def create_app():
     def home():
         return "Welcome to Simple-Survey-Api!"
 
-    # Import routes     
-    # from routes.response import response
-    # from routes.fetch_responses import answers
     from routes.questions import questions
-    from routes.download_certificates import certificates
     from routes.authentication import auth
     from routes.survey import survey
     
     app.register_blueprint(questions, url_prefix='/api')
-    # app.register_blueprint(response, url_prefix='/api')
-    # app.register_blueprint(answers, url_prefix='/api')
-    app.register_blueprint(certificates, url_prefix='/api')
     app.register_blueprint(survey, url_prefix='/api')
     app.register_blueprint(auth, url_prefix='/auth')
 

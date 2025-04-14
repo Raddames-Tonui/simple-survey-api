@@ -20,6 +20,33 @@ from werkzeug.utils import secure_filename
 
 questions = Blueprint('questions', __name__)
 
+from flask import Blueprint, request, jsonify, send_file
+from app import db
+
+from sqlalchemy.orm import joinedload
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from models.survey import Survey
+from models.question import Question
+from models.answer import Answer
+from models.submission import Submission
+from models.option import Option
+from models.certificate import  Certificate
+from models.survey import Survey
+from models.user import User
+
+from firebase_config import * 
+from firebase_admin import storage  
+
+import uuid, requests
+from io import BytesIO
+
+from werkzeug.utils import secure_filename
+
+questions = Blueprint('questions', __name__)
+
+
+
+
 # ============================================================================================================================
 
 # a) FETCH ALL QUESTIONS
@@ -208,4 +235,23 @@ def get_user_surveys_answers():
         "total_count": paginated.total
     })
 
+
+# ============================================================================================================================
+
+# d) DOWNLOAD CERTIFICATE 
+@questions.route('/questions/responses/certificates/<int:cert_id>', methods=['GET'])
+def stream_certificate(cert_id):
+    certificate = Certificate.query.get(cert_id)
+    if not certificate:
+        return jsonify({"message": "Certificate not found"}), 404
+
+    response = requests.get(certificate.file_url)
+    if response.status_code != 200:
+        return jsonify({"message": "Failed to download file from Firebase"}), 500
+
+    return send_file(
+        BytesIO(response.content),
+        download_name=certificate.file_name,
+        as_attachment=True
+    )
 
