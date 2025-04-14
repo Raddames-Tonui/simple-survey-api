@@ -1,4 +1,8 @@
 .venv
+migrations
+__pycache__
 
 secrets/*
 google_credentials/*.json
+
+

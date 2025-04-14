@@ -220,7 +220,6 @@ def upload_file_to_firebase(file):
         raise e  # Reraise the error for the caller to handle
 
 # Route to Submit Response 
-# Route to Submit Response 
 @response.route('/questions/responses', methods=["PUT"])
 def handle_survey_response():
     try:

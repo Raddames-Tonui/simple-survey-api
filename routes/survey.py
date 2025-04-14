@@ -4,6 +4,8 @@ from app import db
 from models.survey import Survey
 from models.question import Question
 from models.option import Option
+from models.answer import Answer
+from models.submission import Submission
 from sqlalchemy.orm import joinedload
 
 
@@ -17,7 +19,7 @@ def create_survey():
     user_id = get_jwt_identity()
     
     # Log the incoming data using print
-    print("Received survey data:", data)
+    # print("Received survey data:", data)
     
     # Or, using logging:
     
@@ -108,6 +110,70 @@ def get_all_surveys():
     serialized_surveys = [survey.serialize() for survey in surveys]
 
     return jsonify({"surveys" : serialized_surveys}), 200
+
+
+# FETCH ALL SURVEYS FOR A USER
+# @survey.route('/questions/responses', methods=['GET'])
+# @jwt_required()
+# def get_user_surveys():
+#     user_id = get_jwt_identity()
+#     page = int(request.args.get('page', 1))
+#     per_page = int(request.args.get('page_size', 5))
+#     email_filter = request.args.get('email_address')
+
+#     query = Survey.query.filter_by(created_by=user_id).options(
+#         joinedload(Survey.submissions)
+#         .joinedload(Submission.answers)
+#         .joinedload(Answer.question),
+#         joinedload(Survey.submissions)
+#         .joinedload(Submission.certificates)
+#     )
+
+#     if email_filter:
+#         query = query.join(Survey.submissions).join(Submission.answers).join(Answer.question).filter(
+#             Question.name == 'email_address',
+#             Answer.response_value.ilike(f"%{email_filter}%")
+#         ).distinct()
+
+#     paginated = query.paginate(page=page, per_page=per_page, error_out=False)
+
+#     survey_responses = []
+#     for survey in paginated.items:
+#         for submission in survey.submissions:
+#             dynamic_answers = {
+#                 answer.question.name: answer.response_value
+#                 for answer in submission.answers
+#             }
+
+#             certs = [
+#                 {
+#                     'id': cert.id,
+#                     'file_url': cert.file_url,
+#                     'file_name': cert.file_name
+#                 }
+#                 for cert in submission.certificates
+#             ]
+
+#             question_response = {
+#                 'survey_id': survey.id,
+#                 'survey_title': survey.title,
+#                 'response_id': submission.id,
+#                 **dynamic_answers,
+#                 'certificates': certs,
+#                 'date_responded': submission.date_submitted.strftime("%Y-%m-%d %H:%M:%S")
+#             }
+
+#             survey_responses.append(question_response)
+
+#     return jsonify({
+#         "survey_responses": survey_responses,
+#         "current_page": paginated.page,
+#         "last_page": paginated.pages,
+#         "page_size": per_page,
+#         "total_count": paginated.total
+#     }), 200
+
+
 
 
 
