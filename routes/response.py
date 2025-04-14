@@ -217,7 +217,7 @@ def upload_file_to_firebase(file):
         return file_url
     except Exception as e:
         # print(f"Error uploading file: {str(e)}")
-        raise e  # Reraise the error for the caller to handle
+        raise e 
 
 # Route to Submit Response 
 @response.route('/questions/responses', methods=["PUT"])
@@ -230,8 +230,8 @@ def handle_survey_response():
         # Extract survey_id and user_id from the request
         survey_id = data.get('survey_id')
         user_id = data.get('user_id')
-        print("Survey ID:", survey_id)
-        print("User ID:", user_id)
+        # print("Survey ID:", survey_id)
+        # print("User ID:", user_id)
 
                 
         # If user_id is not provided, set it to None

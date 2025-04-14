@@ -73,7 +73,7 @@ def seed_questions(survey_id):
             required=q["required"],
             text=q["text"],
             description=q["description"],
-            order=q["order"],  # Set the order here
+            order=q["order"], 
             survey_id=survey_id
         )
         db.session.add(question)
@@ -129,22 +129,13 @@ def seed_sample_submission(survey_id, admin_id):
     print("Sample submission and answers seeded successfully.")
 
 if __name__ == "__main__":
-    with app.app_context():  # Ensure operations are within app context
-        # Drop existing data if necessary
-        Answer.query.delete()
-        Certificate.query.delete()
-        Option.query.delete()
-        Question.query.delete()
-        Submission.query.delete()
-        Survey.query.delete()
-        User.query.delete() 
-        db.session.commit()
+    with app.app_context():
+        db.drop_all()         # Drop all existing tables
+        print("Dropping existing tables")
+        db.create_all()       # Recreate all tables based on models
+        print("Creating new tables")
 
-        # Recreate tables (optional if using migrations)
-        db.create_all()
-
-        # Seed fresh data
-        admin_id = seed_admin_user()  # Create the admin user and get the ID
-        survey_id = seed_survey(admin_id)  # Create survey with the admin as creator
-        seed_questions(survey_id)  # Seed questions
-        seed_sample_submission(survey_id, admin_id)  # Seed a sample submission for admin user
+        admin_id = seed_admin_user()
+        survey_id = seed_survey(admin_id)
+        seed_questions(survey_id)
+        seed_sample_submission(survey_id, admin_id)
