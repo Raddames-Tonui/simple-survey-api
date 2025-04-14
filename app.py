@@ -7,6 +7,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
 
+
 # Load env vars
 load_dotenv()
 
@@ -53,6 +54,7 @@ def create_app():
     from routes.download_certificates import certificates
     from routes.authentication import auth
     from routes.survey import survey
+    
     app.register_blueprint(questions, url_prefix='/api')
     app.register_blueprint(response, url_prefix='/api')
     # app.register_blueprint(answers, url_prefix='/api')
@@ -66,4 +68,7 @@ def create_app():
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    if os.getenv("FLASK_ENV") == "development":
+        import subprocess
+        subprocess.run(["flask", "run"])
+    app.run()
