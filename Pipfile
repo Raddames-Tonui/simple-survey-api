@@ -11,9 +11,9 @@ psycopg2-binary = "*"
 flask-migrate = "*"
 python-dotenv = "*"
 sqlalchemy-serializer = "*"
-gunicorn = "*"
 firebase-admin = "*"
 faker = "*"
+gunicorn = "*"
 
 [dev-packages]
 
