@@ -11,7 +11,7 @@ from datetime import timedelta
 
 # Load env vars
 load_dotenv()
-postgres_pwd=os.getenv("POSTGRES_PWD")
+postgres_pwd=os.getenv("DATABASE_URL")
 
 # Setup extensions
 db = SQLAlchemy()
@@ -22,8 +22,7 @@ def create_app():
 
     # Config
     # app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL' ) postgresql://admin:admin@localhost:5432/sky_survey_db
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://sky_survey_db_9xg7_user:{postgres_pwd}"
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_DATABASE_URI'] = postgres_pwd
     app.config["SECRET_KEY"] = "$hhjd4q%h%^#7&893" + str(random.randint(1, 1000000))
 
     # JWT Configuration for Header-Based Auth
