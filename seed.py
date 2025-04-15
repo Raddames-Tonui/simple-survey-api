@@ -6,33 +6,35 @@ from models.submission import Submission
 from models.answer import Answer
 from models.certificate import Certificate
 from models.user import User
+from faker import Faker
 from werkzeug.security import generate_password_hash
+import random
+
+fake = Faker()
 
 def seed_admin_user():
-    # Create an admin user for seeding
     admin_user = User(
         email="admin@example.com",
         name="Admin User",
-        role="admin"
+        role="creator"
     )
-    admin_user.set_password("123") 
+    admin_user.set_password("123")
     db.session.add(admin_user)
     db.session.commit()
-    print("Admin user created.")
-    return admin_user.id  # Return the admin user ID for use in other seed functions
+    print("First user created successfully.")
+    return admin_user.id
 
 def seed_survey(admin_id):
-    # Create a new survey for seeding
     survey = Survey(
         title="Developer Skills Survey",
         description="A survey to assess the skills of developers.",
         is_published=True,
-        created_by=admin_id  # Use admin user ID as the creator
+        created_by=admin_id
     )
     db.session.add(survey)
     db.session.commit()
     print("Survey seeded successfully.")
-    return survey.id  # Return survey ID for seeding questions
+    return survey.id
 
 def seed_questions(survey_id):
     questions_data = [
@@ -77,7 +79,7 @@ def seed_questions(survey_id):
             survey_id=survey_id
         )
         db.session.add(question)
-        db.session.flush()  # Flush to get the ID for FK use in options
+        db.session.flush()
 
         if q.get("options"):
             for opt in q["options"]:
@@ -87,18 +89,16 @@ def seed_questions(survey_id):
     db.session.commit()
     print("Questions and options seeded successfully.")
 
-
 def seed_sample_submission(survey_id, admin_id):
-    # Create a sample user submission for the admin user
     submission = Submission(
         date_submitted="2023-09-21 12:30:12",
         survey_id=survey_id,
-        user_id=admin_id  # Use admin user ID
+        user_id=admin_id,
+        email_address="admin@example.com"
     )
     db.session.add(submission)
-    db.session.flush()  # Flush to get the ID
+    db.session.flush()
 
-    # Sample Answers to Seed (full_name, email_address, etc.)
     answers_data = [
         {"question_name": "full_name", "response_value": "Admin User", "submission_id": submission.id},
         {"question_name": "email_address", "response_value": "admin@example.com", "submission_id": submission.id},
@@ -107,7 +107,6 @@ def seed_sample_submission(survey_id, admin_id):
         {"question_name": "programming_stack", "response_value": "React JS, Go", "submission_id": submission.id},
     ]
 
-    # Add answers to the submission
     for answer_data in answers_data:
         question = Question.query.filter_by(name=answer_data["question_name"]).first()
         if question:
@@ -118,7 +117,6 @@ def seed_sample_submission(survey_id, admin_id):
             )
             db.session.add(answer)
 
-    # Add certificates (if any)
     certificates_data = ["Admin Certificate 19-08-2023.pdf", "Admin Certification.pdf"]
     for cert_file in certificates_data:
         certificate = Certificate(submission_id=submission.id)
@@ -128,14 +126,72 @@ def seed_sample_submission(survey_id, admin_id):
     db.session.commit()
     print("Sample submission and answers seeded successfully.")
 
+def seed_multiple_submissions(survey_id):
+    questions = Question.query.filter_by(survey_id=survey_id).all()
+    question_map = {q.name: q for q in questions}
+    
+    tech_stacks = ["React JS", "Angular JS", "Vue JS", "SQL", "Postgres", "MySQL", "MSSQL", "Java", "PHP", "Go", "Rust"]
+    genders = ["Male", "Female", "Other"]
+
+    for _ in range(40):
+        email = fake.email()
+        full_name = fake.name()
+        submission = Submission(
+            survey_id=survey_id,
+            email_address=email,
+            date_submitted=fake.date_time_between(start_date='-1y', end_date='now')
+        )
+        db.session.add(submission)
+        db.session.flush()
+
+        answers = [
+            Answer(
+                question_id=question_map["full_name"].id,
+                submission_id=submission.id,
+                response_value=full_name
+            ),
+            Answer(
+                question_id=question_map["email_address"].id,
+                submission_id=submission.id,
+                response_value=email
+            ),
+            Answer(
+                question_id=question_map["description"].id,
+                submission_id=submission.id,
+                response_value=fake.text(max_nb_chars=200)
+            ),
+            Answer(
+                question_id=question_map["gender"].id,
+                submission_id=submission.id,
+                response_value=random.choice(genders)
+            ),
+            Answer(
+                question_id=question_map["programming_stack"].id,
+                submission_id=submission.id,
+                response_value=", ".join(random.sample(tech_stacks, k=random.randint(2, 5)))
+            ),
+        ]
+
+        db.session.add_all(answers)
+
+        for i in range(random.randint(1, 2)):
+            cert_file = f"{full_name.replace(' ', '_')}_Cert_{i}.pdf"
+            cert = Certificate(submission_id=submission.id)
+            cert.save_metadata(file_url=f"/fake/path/{cert_file}", file_name=cert_file)
+            db.session.add(cert)
+
+    db.session.commit()
+    print("40 random submissions seeded successfully.")
+
 if __name__ == "__main__":
     with app.app_context():
-        db.drop_all()         # Drop all existing tables
+        db.drop_all()
         print("Dropping existing tables")
-        db.create_all()       # Recreate all tables based on models
+        db.create_all()
         print("Creating new tables")
 
         admin_id = seed_admin_user()
         survey_id = seed_survey(admin_id)
         seed_questions(survey_id)
         seed_sample_submission(survey_id, admin_id)
+        seed_multiple_submissions(survey_id)

@@ -3,6 +3,7 @@ from app import db
 
 from sqlalchemy.orm import joinedload
 from flask_jwt_extended import jwt_required, get_jwt_identity
+
 from models.survey import Survey
 from models.question import Question
 from models.answer import Answer
@@ -15,36 +16,68 @@ from models.user import User
 from firebase_config import * 
 from firebase_admin import storage  
 
-import uuid
+import uuid, requests
 from werkzeug.utils import secure_filename
+from collections import defaultdict
+
+
+from io import BytesIO
+
 
 questions = Blueprint('questions', __name__)
+
 
 # ============================================================================================================================
 
 # a) FETCH ALL QUESTIONS
 @questions.route('/questions', methods=['GET'])
-def get_questions():
-    # Fetch all questions along with their associated survey
-    questions = Question.query.options(joinedload(Question.survey)).all()
-    
-    # Serialize the survey title and description along with the questions
-    serialized_questions = [
-        {
-            'question': question.serialize(),
-            'survey_title': question.survey.title,
-            'survey_description': question.survey.description,
-            'survey_id': question.survey.id
-        }
-        for question in questions
-    ]
+def get_all_questions_grouped_by_survey():
+    # Fetch all questions, along with their associated survey and options
+    all_questions = Question.query.options(
+        joinedload(Question.survey),  
+        joinedload(Question.options) 
+    ).all()
 
-    return jsonify({'questions': serialized_questions}), 200
+    # Use defaultdict to group questions under their respective surveys
+    # The lambda function sets up the default structure for each survey group
+    grouped = defaultdict(lambda: {
+        'id': None,
+        'title': '',
+        'description': '',
+        'questions': []
+    })
+
+    for q in all_questions:
+        survey_id = q.survey.id
+        
+        # Set survey metadata only once for each group
+        grouped[survey_id]['id'] = survey_id
+        grouped[survey_id]['title'] = q.survey.title
+        grouped[survey_id]['description'] = q.survey.description
+
+        # Append the serialized question to the corresponding survey group
+        grouped[survey_id]['questions'].append(q.serialize())
+
+    # Convert defaultdict to a list of grouped survey-question objects
+    return jsonify(list(grouped.values())), 200
+
+
+# b) FETCH QUESTIONS OF A PARTICULAR SURVEY
+@questions.route('/questions/survey/<int:survey_id>', methods=['GET'])
+def get_questions_of_a_survey(survey_id):
+    survey = Survey.query.get(survey_id)
+    if not survey:
+        return jsonify({'error': 'Survey not found'}), 404
+    
+    survey_data = survey.serialize()
+    survey_data['questions'] = [q.serialize() for q in survey.questions]
+
+    return jsonify(survey_data), 200
 
 
 # ============================================================================================================================
 
-# b) ROUTE TO SUBMIT RESPONSE
+# c) ROUTE TO SUBMIT RESPONSE
 # Function to upload file to Firebase Storage
 def upload_file_to_firebase(file):
     try:
@@ -79,15 +112,15 @@ def handle_survey_response():
         # Extract survey_id and user_id from the request
         survey_id = data.get('survey_id')
         user_id = data.get('user_id')
-        # print("Survey ID:", survey_id)
-        # print("User ID:", user_id)
-
+        email_address = data.get('email')
+        # print("Survey ID:", survey_id "User ID:", user_id)
+       
                 
         # If user_id is not provided, set it to None
         user_id = user_id if user_id else None
 
         # Step 1: Create a submission entry in the database
-        submission = Submission(survey_id=survey_id, user_id=user_id)
+        submission = Submission(survey_id=survey_id, user_id=user_id, email_address=email_address)
         db.session.add(submission)
         db.session.flush()  # Get submission.id without committing yet
 
@@ -145,7 +178,7 @@ def handle_survey_response():
 
 # ============================================================================================================================
 
-# c) FETCH ALL SURVEY QUESTIONS WITH ANSWERS FOR A USER
+# d) FETCH ALL SURVEY QUESTIONS WITH ANSWERS FOR A USER
 @questions.route('/questions/responses', methods=['GET'])
 @jwt_required()
 def get_user_surveys_answers():
@@ -154,51 +187,47 @@ def get_user_surveys_answers():
     per_page = int(request.args.get('page_size', 5))
     email_filter = request.args.get('email_address')
 
-    query = Survey.query.filter_by(created_by=user_id).options(
-        joinedload(Survey.submissions)
-        .joinedload(Submission.answers)
-        .joinedload(Answer.question),
-        joinedload(Survey.submissions)
-        .joinedload(Submission.certificates)
+    # Base query on submissions created by the current user's surveys
+    query = Submission.query.join(Submission.survey).filter(Survey.created_by == user_id).options(
+        joinedload(Submission.survey),
+        joinedload(Submission.answers).joinedload(Answer.question),
+        joinedload(Submission.certificates)
     )
 
-    # Apply email filter only to answers to the email address question
+    # Apply email filter directly on the email_address field
     if email_filter:
-        query = query.join(Survey.submissions).join(Submission.answers).join(Answer.question).filter(
-            Question.name == 'email_address',  # Targeting the 'email_address' question
-            Answer.response_value.ilike(f"%{email_filter}%")  # Filtering the email
-        )
+        query = query.filter(Submission.email_address.ilike(f"%{email_filter}%"))
 
     # Pagination
     paginated = query.paginate(page=page, per_page=per_page, error_out=False)
 
     survey_responses = []
-    for survey in paginated.items:
-        for submission in survey.submissions:
-            dynamic_answers = {
-                answer.question.name: answer.response_value
-                for answer in submission.answers
+    for submission in paginated.items:
+        dynamic_answers = {
+            answer.question.name: answer.response_value
+            for answer in submission.answers
+        }
+
+        certs = [
+            {
+                'id': cert.id,
+                'file_url': cert.file_url,
+                'file_name': cert.file_name
             }
+            for cert in submission.certificates
+        ]
 
-            certs = [
-                {
-                    'id': cert.id,
-                    'file_url': cert.file_url,
-                    'file_name': cert.file_name
-                }
-                for cert in submission.certificates
-            ]
+        question_response = {
+            'survey_id': submission.survey.id,
+            'survey_title': submission.survey.title,
+            'response_id': submission.id,
+            **dynamic_answers,
+            'email_address': submission.email_address,
+            'certificates': certs,
+            'date_responded': submission.date_submitted.strftime("%Y-%m-%d %H:%M:%S")
+        }
 
-            question_response = {
-                'survey_id': survey.id,
-                'survey_title': survey.title,
-                'response_id': submission.id,
-                **dynamic_answers,
-                'certificates': certs,
-                'date_responded': submission.date_submitted.strftime("%Y-%m-%d %H:%M:%S")
-            }
-
-            survey_responses.append(question_response)
+        survey_responses.append(question_response)
 
     return jsonify({
         "survey_responses": survey_responses,
@@ -208,4 +237,38 @@ def get_user_surveys_answers():
         "total_count": paginated.total
     })
 
+
+
+# ============================================================================================================================
+
+# e) DOWNLOAD CERTIFICATE 
+@questions.route('/questions/responses/certificates/<int:cert_id>', methods=['GET'])
+def stream_certificate(cert_id):
+    certificate = Certificate.query.get(cert_id)
+    if not certificate:
+        return jsonify({"message": "Certificate not found"}), 404
+
+    response = requests.get(certificate.file_url)
+    if response.status_code != 200:
+        return jsonify({"message": "Failed to download file from Firebase"}), 500
+
+    return send_file(
+        BytesIO(response.content),
+        download_name=certificate.file_name,
+        as_attachment=True
+    )
+
+
+
+@questions.route('/surveys/user-surveys', methods=['GET'])
+@jwt_required()
+def get_user_surveys():
+    user_id = get_jwt_identity()
+
+    surveys = Survey.query.filter_by(created_by=user_id).all()
+
+    if not surveys:
+        return jsonify({"message": "No surveys found for this user."}), 404
+
+    return jsonify({"surveys": [s.serialize() for s in surveys]}), 200
 

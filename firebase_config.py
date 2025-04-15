@@ -3,7 +3,7 @@ from firebase_admin import credentials, storage
 import os
 
 # Absolute path to the service account
-cred_path = os.path.join(os.path.dirname(__file__), 'secrets', 'sheria-365-firebase-adminsdk-8tmr6-a7703a86f1.json')
+cred_path = os.path.join(os.path.dirname(__file__), 'secrets', 'jazaform_firebase_secrets.json')
 
 # Initialize Firebase app
 cred = credentials.Certificate(cred_path)

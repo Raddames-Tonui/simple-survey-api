@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 flask = "*"
-faker = "*"
 flask-sqlalchemy = "*"
 flask-cors = "*"
 psycopg2-binary = "*"
@@ -14,6 +13,7 @@ python-dotenv = "*"
 sqlalchemy-serializer = "*"
 gunicorn = "*"
 firebase-admin = "*"
+faker = "*"
 
 [dev-packages]
 
