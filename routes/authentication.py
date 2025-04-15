@@ -64,8 +64,8 @@ def signup():
     name = data.get('name')
     password = data.get('password')
 
-    # Force role to "viewer"
-    role = 'viewer'
+    # Force role to "creator"
+    role = 'creator'
 
     # Validate input
     if not email or not name or not password:

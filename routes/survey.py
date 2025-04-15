@@ -19,7 +19,7 @@ def create_survey():
     user_id = get_jwt_identity()
     
     # Log the incoming data using print
-    # print("Received survey data:", data)
+    print("Received survey data:", data)
     
     # Or, using logging:
     

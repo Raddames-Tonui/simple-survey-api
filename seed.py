@@ -13,12 +13,12 @@ def seed_admin_user():
     admin_user = User(
         email="admin@example.com",
         name="Admin User",
-        role="admin"
+        role="creator"
     )
     admin_user.set_password("123") 
     db.session.add(admin_user)
     db.session.commit()
-    print("Admin user created.")
+    print("First user created successfully.")
     return admin_user.id  # Return the admin user ID for use in other seed functions
 
 def seed_survey(admin_id):

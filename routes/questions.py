@@ -3,28 +3,7 @@ from app import db
 
 from sqlalchemy.orm import joinedload
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models.survey import Survey
-from models.question import Question
-from models.answer import Answer
-from models.submission import Submission
-from models.option import Option
-from models.certificate import  Certificate
-from models.survey import Survey
-from models.user import User
 
-from firebase_config import * 
-from firebase_admin import storage  
-
-import uuid
-from werkzeug.utils import secure_filename
-
-questions = Blueprint('questions', __name__)
-
-from flask import Blueprint, request, jsonify, send_file
-from app import db
-
-from sqlalchemy.orm import joinedload
-from flask_jwt_extended import jwt_required, get_jwt_identity
 from models.survey import Survey
 from models.question import Question
 from models.answer import Answer
@@ -38,40 +17,67 @@ from firebase_config import *
 from firebase_admin import storage  
 
 import uuid, requests
+from werkzeug.utils import secure_filename
+from collections import defaultdict
+
+
 from io import BytesIO
 
-from werkzeug.utils import secure_filename
 
 questions = Blueprint('questions', __name__)
-
-
 
 
 # ============================================================================================================================
 
 # a) FETCH ALL QUESTIONS
 @questions.route('/questions', methods=['GET'])
-def get_questions():
-    # Fetch all questions along with their associated survey
-    questions = Question.query.options(joinedload(Question.survey)).all()
-    
-    # Serialize the survey title and description along with the questions
-    serialized_questions = [
-        {
-            'question': question.serialize(),
-            'survey_title': question.survey.title,
-            'survey_description': question.survey.description,
-            'survey_id': question.survey.id
-        }
-        for question in questions
-    ]
+def get_all_questions_grouped_by_survey():
+    # Fetch all questions, along with their associated survey and options
+    all_questions = Question.query.options(
+        joinedload(Question.survey),  
+        joinedload(Question.options) 
+    ).all()
 
-    return jsonify({'questions': serialized_questions}), 200
+    # Use defaultdict to group questions under their respective surveys
+    # The lambda function sets up the default structure for each survey group
+    grouped = defaultdict(lambda: {
+        'id': None,
+        'title': '',
+        'description': '',
+        'questions': []
+    })
+
+    for q in all_questions:
+        survey_id = q.survey.id
+        
+        # Set survey metadata only once for each group
+        grouped[survey_id]['id'] = survey_id
+        grouped[survey_id]['title'] = q.survey.title
+        grouped[survey_id]['description'] = q.survey.description
+
+        # Append the serialized question to the corresponding survey group
+        grouped[survey_id]['questions'].append(q.serialize())
+
+    # Convert defaultdict to a list of grouped survey-question objects
+    return jsonify(list(grouped.values())), 200
+
+
+# b) FETCH QUESTIONS OF A PARTICULAR SURVEY
+@questions.route('/questions/survey/<int:survey_id>', methods=['GET'])
+def get_questions_of_a_survey(survey_id):
+    survey = Survey.query.get(survey_id)
+    if not survey:
+        return jsonify({'error': 'Survey not found'}), 404
+    
+    survey_data = survey.serialize()
+    survey_data['questions'] = [q.serialize() for q in survey.questions]
+
+    return jsonify(survey_data), 200
 
 
 # ============================================================================================================================
 
-# b) ROUTE TO SUBMIT RESPONSE
+# c) ROUTE TO SUBMIT RESPONSE
 # Function to upload file to Firebase Storage
 def upload_file_to_firebase(file):
     try:
@@ -106,6 +112,7 @@ def handle_survey_response():
         # Extract survey_id and user_id from the request
         survey_id = data.get('survey_id')
         user_id = data.get('user_id')
+        email_address = data.get('email')
         # print("Survey ID:", survey_id)
         # print("User ID:", user_id)
 
@@ -114,7 +121,7 @@ def handle_survey_response():
         user_id = user_id if user_id else None
 
         # Step 1: Create a submission entry in the database
-        submission = Submission(survey_id=survey_id, user_id=user_id)
+        submission = Submission(survey_id=survey_id, user_id=user_id, email_address=email_address)
         db.session.add(submission)
         db.session.flush()  # Get submission.id without committing yet
 
@@ -172,7 +179,7 @@ def handle_survey_response():
 
 # ============================================================================================================================
 
-# c) FETCH ALL SURVEY QUESTIONS WITH ANSWERS FOR A USER
+# d) FETCH ALL SURVEY QUESTIONS WITH ANSWERS FOR A USER
 @questions.route('/questions/responses', methods=['GET'])
 @jwt_required()
 def get_user_surveys_answers():
@@ -238,7 +245,7 @@ def get_user_surveys_answers():
 
 # ============================================================================================================================
 
-# d) DOWNLOAD CERTIFICATE 
+# e) DOWNLOAD CERTIFICATE 
 @questions.route('/questions/responses/certificates/<int:cert_id>', methods=['GET'])
 def stream_certificate(cert_id):
     certificate = Certificate.query.get(cert_id)
@@ -254,4 +261,18 @@ def stream_certificate(cert_id):
         download_name=certificate.file_name,
         as_attachment=True
     )
+
+
+
+@questions.route('/surveys/user-surveys', methods=['GET'])
+@jwt_required()
+def get_user_surveys():
+    user_id = get_jwt_identity()
+
+    surveys = Survey.query.filter_by(created_by=user_id).all()
+
+    if not surveys:
+        return jsonify({"message": "No surveys found for this user."}), 404
+
+    return jsonify({"surveys": [s.serialize() for s in surveys]}), 200
 
