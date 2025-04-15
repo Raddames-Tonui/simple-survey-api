@@ -8,8 +8,8 @@
 
 ### 🧠 Project Purpose
 
-This is a simple survey application built as part of the Sky World Limited Software Engineering Pre-Interview Task. It allows users to:
-
+This is a simple survey application which allows users to:
+- Create survey questions
 - Respond to survey questions
 - Submit their responses (including PDF file uploads)
 - View a list of all submitted responses
@@ -35,10 +35,11 @@ This is a simple survey application built as part of the Sky World Limited Softw
 - **ERD**: Located in the `/documents` folder
 - **SQL Schema**: Provided in the same folder
 
-**.env Configuration:**
+
 
 ### Project Structure
-```simple-survey-api/
+```
+   simple-survey-api/
       ├── app.py
       ├── seed.py
       ├── firebase_config.py
@@ -68,21 +69,24 @@ This is a simple survey application built as part of the Sky World Limited Softw
       ├── requirements.txt
       └── README.md
 ```
+
+
+**.env Configuration:**
 ```
 DATABASE_URL=postgresql://admin:admin@localhost:5432/sky_survey_db
-SECRET_KEY=Enter_your_secret_key
-JWT_SECRET_KEY=jwt_secret_key
-FLASK_ENV=development
+SECRET_KEY=enter_your_sectret_key
+JWT_SECRET_KEY=enter_your_jwt_sectret_key
+FLASK_ENV=development  
 ```
 
 ---
 
-### 🧩 Folder & File Purpose (from your structure)
+### 🧩 Folder & File Purpose
 
 | Folder/File                 | Description                        |
 | --------------------------- | ---------------------------------- |
 | `app.py`                    | Flask app entry point              |
-| `models`                    |         |
+| `models`                    | 
 | `routes/authentication.py`  | Handles user login and auth        |
 | `routes/questions.py`       | Exposes question-related endpoints |
 | `routes/survey.py`          | Survey submission and processing   |
@@ -91,7 +95,7 @@ FLASK_ENV=development
 | `secrets/*.json`            | Firebase credentials (private)     |
 
 
-> ⚠️ Add your Firebase credentials to the `secrets/` directory.  
+> ⚠️ Add Firebase credentials to the `secrets/` directory.  
 > Example:
 
 ```python
