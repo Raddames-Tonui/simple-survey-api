@@ -27,6 +27,37 @@ def get_questions():
     return jsonify({'questions': serialized_questions}), 200
 
 
+# FECTCH QUESTIONS BASED ON SURVEY
+@questions.route('/survey/<int:survey_id>/questions/', methods=['GET'])
+def get_questions_by_survey(survey_id):
+    # Fetch the survey by ID and check if it's published
+    survey = Survey.query.filter_by(id=survey_id, is_published=True).first()
+    
+    if not survey:
+        return jsonify({"error": "Survey not found or not published"}), 404
+
+    # Fetch questions for this survey ordered by `order`
+    questions = (
+        Question.query
+        .filter_by(survey_id=survey.id)
+        .options(joinedload(Question.survey))
+        .order_by(Question.order.asc())  
+        .all()
+    )
+
+    serialized_questions = [
+        {
+            'question': question.serialize(),
+            'survey_title': survey.title,
+            'survey_description': survey.description,
+            'survey_id': survey.id
+        }
+        for question in questions
+    ]
+    
+    return jsonify({'questions': serialized_questions}), 200
+
+
 
 
 
