@@ -1,186 +1,179 @@
-### 📘 Simple Survey API Overview
+# 📘 Simple Survey API
 
 **Project Name**: Simple Survey API  
-**Base URL**: `http://<your-domain>/api`  
+**Base URL**: `https://simple-survey-api-fqyt.onrender.com/api`  
 **Auth**: JWT Tokens
 
 ---
 
-### 🧠 Project Purpose
+## 🧠 Project Purpose
 
-This is a simple survey application which allows users to:
+This is a simple survey application that allows users to:
 - Create survey questions
 - Respond to survey questions
-- Submit their responses (including PDF file uploads)
-- View a list of all submitted responses
-- Download certificates attached to a survey
+- Submit their responses (including PDF certificate uploads)
+- View all submitted responses
+- Download attached certificates
 
 ---
 
-### ⚙️ Tech Stack
+## ⚙️ Tech Stack
 
 - **Backend**: Python (Flask)
 - **Authentication**: JWT
 - **Database**: PostgreSQL
 - **File Uploads**: Firebase Storage
 - **ORM**: SQLAlchemy + Flask-Migrate
-- **API Documentation Tool**: Postman Collection
+- **API Testing**: Postman Collection
 
 ---
 
-### 🗃️ Database
+## 🗃️ Database
 
 - **DBMS**: PostgreSQL
 - **Database Name**: `sky_survey_db`
-- **ERD**: Located in the `/documents` folder
-- **SQL Schema**: Provided in the same folder
+- **ERD Diagram**: [`/documents/ERD_diagram_Simple_Survey_API.png`](./documents/ERD_diagram_Simple_Survey_API.png)
+- **SQL Schema**: [`/documents/sky_survey_db_schema.sql`](./documents/sky_survey_db_schema.sql)
 
+---
 
-
-### Project Structure
+## 🔧 Project Structure
 ```
-   simple-survey-api/
-      ├── app.py
-      ├── seed.py
-      ├── firebase_config.py
-      ├── models/
-      │   ├── __init__.py
-      │   ├── user.py
-      │   ├── survey.py
-      │   ├── submission.py
-      │   ├── question.py
-      │   ├── option.py
-      │   ├── certificate.py
-      │   └── answer.py
-      ├── routes/
-      │   ├── __init__.py
-      │   ├── authentication.py
-      │   ├── questions.py
-      │   ├── survey.py
-      ├── migrations/
-      ├── secrets/
-      │   └── jazaform_firebase_secrets.json
-      ├── documents/
-      │   ├── sky_survey_db_schema.sql
-      │   └── erd.png
-      ├── postman/
-      │   └── sky_survey_api.postman_collection.json
-      ├── .env
-      ├── requirements.txt
-      └── README.md
-```
-
-
-**.env Configuration:**
-```
-DATABASE_URL=postgresql://admin:admin@localhost:5432/sky_survey_db
-SECRET_KEY=enter_your_sectret_key
-JWT_SECRET_KEY=enter_your_jwt_sectret_key
-FLASK_ENV=development  
+simple-survey-api/
+├── app.py
+├── seed.py
+├── firebase_config.py
+├── models/
+│   ├── __init__.py
+│   ├── user.py
+│   ├── survey.py
+│   ├── submission.py
+│   ├── question.py
+│   ├── option.py
+│   ├── certificate.py
+│   └── answer.py
+├── routes/
+│   ├── __init__.py
+│   ├── authentication.py
+│   ├── questions.py
+│   ├── survey.py
+├── migrations/
+├── secrets/
+│   └── jazaform_firebase_secrets.json
+├── documents/
+│   ├── sky_survey_db_schema.sql
+│   └── ERD_diagram_Simple_Survey_API.png
+├── postman/
+│   └── sky_survey_api.postman_collection.json
+├── .env
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-### 🧩 Folder & File Purpose
-
-| Folder/File                 | Description                        |
-| --------------------------- | ---------------------------------- |
-| `app.py`                    | Flask app entry point              |
-| `models`                    | 
-| `routes/authentication.py`  | Handles user login and auth        |
-| `routes/questions.py`       | Exposes question-related endpoints |
-| `routes/survey.py`          | Survey submission and processing   |
-| `firebase_config.py`        | Firebase setup for file storage    |
-| `seed.py`                   | Seeds database with data           |
-| `secrets/*.json`            | Firebase credentials (private)     |
-
-
-> ⚠️ Add Firebase credentials to the `secrets/` directory.  
-> Example:
-
-```python
-cred_path = os.path.join(os.path.dirname(__file__), 'secrets', 'jazaform_firebase_secrets.json')
+## 📄 .env Configuration
+```env
+DATABASE_URL=postgresql://sky_survey_db_9xg7_user:1vS6SRcrlOyChQh0v2eLJj4iTw4RFHck@dpg-cvv9bt6uk2gs73caa7ag-a.oregon-postgres.render.com/sky_survey_db_9xg7
+SECRET_KEY=your_secret_key
+JWT_SECRET_KEY=your_jwt_secret_key
+FLASK_ENV=production
+FIREBASE_CREDENTIALS_B64=PASTE_IT_HERE
 ```
+
+> 🔒 The Firebase credentials should be stored as a Base64 string in the `.env` file and loaded inside `firebase_config.py`
 
 ---
 
-### 🔐 Authentication
+## 🧩 Folder & File Purpose
 
-- **Method**: JWT Token
+| Path                           | Description                          |
+|-------------------------------|--------------------------------------|
+| `app.py`                      | Flask app entry point                |
+| `models/`                     | Database models                      |
+| `routes/authentication.py`    | User authentication logic            |
+| `routes/questions.py`         | Endpoints for managing questions     |
+| `routes/survey.py`            | Survey response and file uploads     |
+| `firebase_config.py`          | Firebase integration for storage     |
+| `seed.py`                     | Populate DB with test data           |
+| `secrets/`                    | Holds Firebase credential file       |
+
+---
+
+## 🔐 Authentication
+
+- **Method**: JWT
 - **Header**:
-  ```
+  ```http
   Authorization: Bearer <your-jwt-token>
   ```
 
 ---
 
-
-
-### 📦 Postman Collection
-
-All API endpoints and sample responses are documented and saved in a [Postman Collection](insert-your-postman-link-here).
+## 📦 Postman Collection
+All API endpoints and sample requests are available in the provided Postman collection:  
+📁 [`/postman/sky_survey_api.postman_collection.json`](./postman/sky_survey_api.postman_collection.json)
 
 ---
 
-### 🛠️ Database Migrations
-
-1. Initialize migration folder:
+## 🛠️ Database Migrations
 
 ```bash
 flask db init
+flask db migrate -m "Initial migration"
+flask db upgrade
 ```
 
-2. Generate migration scripts:
+---
+
+## 🚀 Running the Project Locally
 
 ```bash
-flask db migrate -m "Initial migration."
+git clone https://github.com/Raddames-Tonui/simple-survey-api.git
+cd simple-survey-api
+
+# Setup and activate virtual environment
+pipenv install
+pipenv shell
+
+# Add .env and Firebase credential JSON
+# Run migrations
+flask db upgrade
+
+# Start the server
+flask run
 ```
 
-3. Apply migrations:
+---
 
+## 🌍 Deployment on Render
+
+1. Push your code to GitHub:
 ```bash
-flask db upgrade head
+git add .
+git commit -m "deploy-ready"
+git push origin main
 ```
 
----
+2. Go to [Render](https://render.com/), create a new **Web Service**:
+   - Connect to your GitHub repo
+   - Set environment variables from `.env`
+   - Add Build Command: `pip install -r requirements.txt`
+   - Start Command: `flask run --host=0.0.0.0 --port=10000` (or use `gunicorn`)
 
-### 🚀 Running the Project Locally
-
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/Raddames-Tonui/simple-survey-api.git
-   cd simple-survey-api
-   ```
-2. Set up a virtual environment and install dependencies:
-   ```bash
-   pipenv install
-   pipenv shell
-   ```
-3. Set environment variables via `.env` file or export manually
-4. Add Firebase credentials JSON file to `secrets/` directory.
-5. Run database migrations:
-   ```bash
-   flask db upgrade
-   ```
-6. Start the Flask server:
-   ```bash
-   flask run
-   ```
+> ✅ Make sure to include Firebase config and set the `FIREBASE_CREDENTIALS_B64` secret
 
 ---
 
-### 📁 Related Repositories
+## 📁 Related Repositories
 
-- **Frontend (React)**: [simple-survey-client](https://github.com/Raddames-Tonui/simple-survey-client)
-- **Backend (Flask API)**: [simple-survey-api](https://github.com/Raddames-Tonui/simple-survey-api)
+- **Frontend (React)**: [simple-survey-client](https://github.com/Raddames-Tonui/simple-survey-client)  
+  🔗 [Live Site](https://simple-survey-client-alpha.vercel.app/survey/user-surveys)
 
 ---
 
-### 👤 Contacts
+## 👤 Contacts
 
 - **GitHub**: [Raddames-Tonui](https://github.com/Raddames-Tonui)
 - **LinkedIn**: [Raddames Tonui](https://www.linkedin.com/in/raddames-tonui-01a751277/)
-- **Portfolio**: [My Portfolio Web](https://raddamestonui.netlify.app/)
-
-
-
+- **Portfolio**: [My Portfolio](https://raddamestonui.netlify.app/)
