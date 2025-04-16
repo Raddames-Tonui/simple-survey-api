@@ -21,7 +21,7 @@ def create_app():
     app = Flask(__name__)
 
     # Config
-    # app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL' ) postgresql://admin:admin@localhost:5432/sky_survey_db
+    # app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://admin:admin@localhost:5432/sky_survey_db"  # For developement
     app.config['SQLALCHEMY_DATABASE_URI'] = postgres_pwd
     app.config["SECRET_KEY"] = "$hhjd4q%h%^#7&893" + str(random.randint(1, 1000000))
 
