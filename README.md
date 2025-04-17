@@ -28,7 +28,15 @@ This is a simple survey application that allows users to:
 
 ---
 
-## 🗃️ Database
+## 🧪 Postman Collection
+
+All API endpoints and sample requests are available in the provided Postman collection:
+- [Postman Workspace](https://dark-shuttle-668211.postman.co/workspace/My-Workspace~9d927184-69f9-4b4c-8978-451fb98f15bf/collection/40619222-4b047217-e5c4-4277-a01d-00ae2d15b976?action=share&creator=40619222)
+- [Postman JSON File](./documents/simple-survey-api.postman_collection.json)
+
+---
+
+## 📜️ Database
 
 - **DBMS**: PostgreSQL
 - **Database Name**: `sky_survey_db`
@@ -80,12 +88,15 @@ JWT_SECRET_KEY=your_jwt_secret_key
 FLASK_ENV=production
 FIREBASE_CREDENTIALS_B64=PASTE_IT_HERE
 ```
-
-> 🔒 The Firebase credentials should be stored as a Base64 string in the `.env` file and loaded inside `firebase_config.py`
+> 🔐 The Firebase credentials should be stored as a Base64 string in the `.env` file and loaded inside `firebase_config.py`. To convert your Firebase JSON to Base64, run:
+```bash
+base64 -i secrets/jazaform_firebase_secrets.json -o encoded.txt
+```
+Then, copy the contents of `encoded.txt` into `FIREBASE_CREDENTIALS_B64`.
 
 ---
 
-## 🧩 Folder & File Purpose
+## 🤩️ Folder & File Purpose
 
 | Path                           | Description                          |
 |-------------------------------|--------------------------------------|
@@ -93,7 +104,7 @@ FIREBASE_CREDENTIALS_B64=PASTE_IT_HERE
 | `models/`                     | Database models                      |
 | `routes/authentication.py`    | User authentication logic            |
 | `routes/questions.py`         | Endpoints for managing questions     |
-| `routes/survey.py`            | Survey response and file uploads     |
+| `routes/survey.py`           | Survey response and file uploads     |
 | `firebase_config.py`          | Firebase integration for storage     |
 | `seed.py`                     | Populate DB with test data           |
 | `secrets/`                    | Holds Firebase credential file       |
@@ -110,13 +121,7 @@ FIREBASE_CREDENTIALS_B64=PASTE_IT_HERE
 
 ---
 
-## 📦 Postman Collection
-All API endpoints and sample requests are available in the provided Postman collection:  
-📁 [`/postman/sky_survey_api.postman_collection.json`](./postman/sky_survey_api.postman_collection.json)
-
----
-
-## 🛠️ Database Migrations
+## 📦 Database Migrations
 
 ```bash
 flask db init
@@ -177,3 +182,7 @@ git push origin main
 - **GitHub**: [Raddames-Tonui](https://github.com/Raddames-Tonui)
 - **LinkedIn**: [Raddames Tonui](https://www.linkedin.com/in/raddames-tonui-01a751277/)
 - **Portfolio**: [My Portfolio](https://raddamestonui.netlify.app/)
+
+---
+
+

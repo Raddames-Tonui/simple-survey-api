@@ -1,0 +1,381 @@
+{
+	"info": {
+		"_postman_id": "4b047217-e5c4-4277-a01d-00ae2d15b976",
+		"name": "simple-survey-api",
+		"description": "The application enables users to engage with surveys in two distinct roles:\n\n- **Respondents -**can participate by answering survey questions, optionally uploading files (e.g., certificates), and reviewing their answers before submission\n    \n- **Creators-** On the other hand, creators are responsible for designing and managing surveys — including adding questions, setting options, marking required fields, and accessing an overview of all submitted responses for analysis.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40619222"
+	},
+	"item": [
+		{
+			"name": "/auth/signup",
+			"request": {
+				"auth": {
+					"type": "inherit"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\" : \"John Doe\",\r\n    \"email\" : \"example@email.com\",\r\n    \"password\": \"123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/auth/signup",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"auth",
+						"signup"
+					]
+				},
+				"description": "This route handles user registration. When a `POST` request is made to `/signup` with the user's `email`, `name`, and `password`, it creates a new user account with a default role of **creator**.\n\nThe input is validated to ensure all required fields are provided. If the email is already in use, the request is rejected with a `400 Bad Request`. If valid, the user is saved in the database, and secure JWT access and refresh tokens are generated.\n\nUpon successful registration, the API responds with the user's data and the tokens, enabling immediate authentication."
+			},
+			"response": []
+		},
+		{
+			"name": "/auth/login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\" : \"admin@example.com\",\r\n    \"password\" : \"123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/auth/login",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"auth",
+						"login"
+					]
+				},
+				"description": "This endpoint allows a user to log in to the system by submitting their email and password via a `POST` request. The server first validates that both fields are present and non-empty. It then checks the database for a user matching the provided email and verifies the password. If the credentials are valid, the server generates an access token and a refresh token for the authenticated session. The response includes a success message, user details, and the generated tokens. If the credentials are invalid or missing, an appropriate error message is returned."
+			},
+			"response": []
+		},
+		{
+			"name": "/api/surveys/create",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NDY2ODcyNSwianRpIjoiYjgxMGFjNmUtYjQ5MC00NDI1LThjM2QtY2I0NWNhMzMwM2EzIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDQ2Njg3MjUsImNzcmYiOiIzNTliZDJlZC1hYzhmLTQxNDItOGI2NS0wOTI4ZDVlZjE2NDQiLCJleHAiOjE3NDQ2Njk2MjV9.SkAHDqMDVE0Jm7E9AloeWavymohFF4J6I-pLqQRU7AM",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"Customer Satisfaction Survey\",\r\n  \"description\": \"We'd love your feedback on our service!\",\r\n  \"is_published\": true,\r\n  \"questions\": [\r\n    {\r\n      \"name\": \"experience_rating\",\r\n      \"type\": \"radio\",\r\n      \"required\": true,\r\n      \"text\": \"How would you rate your overall experience?\",\r\n      \"description\": \"1 being worst, 5 being excellent\",\r\n      \"order\": 0,\r\n      \"options\": [\"1\", \"2\", \"3\", \"4\", \"5\"]\r\n    },\r\n    {\r\n      \"name\": \"improvement_suggestions\",\r\n      \"type\": \"text\",\r\n      \"required\": false,\r\n      \"text\": \"Any suggestions for improvement?\",\r\n      \"description\": \"This helps us get better.\",\r\n      \"order\": 1\r\n    },\r\n    {\r\n      \"name\": \"preferred_channels\",\r\n      \"type\": \"checkbox\",\r\n      \"required\": false,\r\n      \"text\": \"How do you prefer to be contacted?\",\r\n      \"description\": \"Select all that apply.\",\r\n      \"order\": 2,\r\n      \"options\": [\"Email\", \"SMS\", \"Phone Call\"]\r\n    }\r\n  ]\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/surveys/create",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"surveys",
+						"create"
+					]
+				},
+				"description": "This endpoint enables authenticated users to create a new survey. The user must send a `POST` request with a JSON payload containing the survey title, description (optional), publication status, and an array of questions. Each question must include its name, type, text, and order. For questions of type `radio` or `checkbox`, optional answer choices can also be included.\n\nUpon successful validation, the system saves the survey along with its associated questions and options to the database, linking the survey to the currently authenticated user. If required fields are missing or any unexpected error occurs during the process, an appropriate error message is returned. If successful, a response is returned with a success message and the created survey's ID."
+			},
+			"response": []
+		},
+		{
+			"name": "/api/questions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/questions",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"questions"
+					]
+				},
+				"description": "Returns all questions grouped by their respective surveys. Each group includes the survey's `id`, `title`, and `description`, along with an array of its associated questions and their options. This endpoint is useful for fetching a structured list of all surveys with their questions in a single request. The response is optimized using eager loading to reduce the number of database queries."
+			},
+			"response": []
+		},
+		{
+			"name": "/api/questions/survey/{id}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/questions/survey/1",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"questions",
+						"survey",
+						"1"
+					]
+				},
+				"description": "Fetches a single survey by its ID, along with all its associated questions.\n\n- **Path Parameter**:\n    \n    - `survey_id` (_int_): The ID of the survey to retrieve.\n        \n- **Response**:\n    \n    - `200 OK`: Returns the serialized survey data including its list of questions.\n        \n    - `404 Not Found`: If no survey exists with the given ID."
+			},
+			"response": []
+		},
+		{
+			"name": "/api/questions/responses",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "survey_id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "user_id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "q_1",
+							"value": "John Doe\t",
+							"type": "text"
+						},
+						{
+							"key": "q_2",
+							"value": "john@example.com",
+							"type": "text"
+						},
+						{
+							"key": "q_3",
+							"value": "I’m a full-stack dev who loves building things.\t",
+							"type": "text"
+						},
+						{
+							"key": "q_4",
+							"value": "Male",
+							"type": "text"
+						},
+						{
+							"key": "q_5",
+							"value": "React JS,Postgres,Go\t",
+							"type": "text"
+						},
+						{
+							"key": "certificates\t",
+							"type": "file",
+							"src": "/home/raddames/development/skyworld/simple-survey-api/documents/JazaForm_PDF.pdf"
+						},
+						{
+							"key": "certificates",
+							"type": "file",
+							"src": "/home/raddames/development/skyworld/simple-survey-api/documents/JazaForm_PDF.pdf"
+						}
+					],
+					"options": {
+						"formdata": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/questions/responses",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"questions",
+						"responses"
+					]
+				},
+				"description": "This endpoint handles the submission of survey responses, including optional file uploads such as certificates. When a `PUT` request is made to `/questions/responses`, the backend processes both the form data and uploaded files.\n\nThe request must contain:\n\n- A `survey_id` to associate the submission with a specific survey.\n    \n- A `user_id`, if available (anonymous submissions are allowed).\n    \n- Answers to questions in the form of key-value pairs using the pattern `q_`.\n    \n- Optional certificate files under the `certificates` key.\n    \n\nUpon receiving the data:\n\n1. A new `Submission` entry is created in the database.\n    \n2. For each question, the corresponding `Answer` is saved. If it's a multiple choice question, selected options are matched and stored accordingly.\n    \n3. Uploaded certificates are saved to Firebase Storage with a uniquely generated path, and the public URLs are stored in the database via the `Certificate` model.\n    \n\nAfter successful processing, the server commits the changes and returns a `201 Created` response with a success message. If any error occurs during the process, the transaction is rolled back and a `500 Internal Server Error` is returned."
+			},
+			"response": []
+		},
+		{
+			"name": "/api/questions/responses",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NDYyNDA5MywianRpIjoiMTMwYzNjYmMtZjViNC00ZmI0LTlhODAtMGE2M2QwOTcyNTlhIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjQiLCJuYmYiOjE3NDQ2MjQwOTMsImNzcmYiOiIzZDg4ZDM4ZC1kMGE3LTQzYzEtODMxYi1kMDEyNTg5MTMzNmMiLCJleHAiOjE3NDQ2MjQ5OTN9.HoVluz-PGo2lEeLpTY0FS1cTTrRhylMU4NuW8Gr8EBQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/questions/responses",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"questions",
+						"responses"
+					]
+				},
+				"description": "This is an API that enables a creator of a survey to access responses to the surveys they created. The Creator must be authenticated in order to access it.\n\nIt allows\n\n- Pagination of the records.\n    \n- Filtering of the responses based on email_address"
+			},
+			"response": []
+		},
+		{
+			"name": "/questions/responses/certificates/{id}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/questions/responses/certificates/3",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"questions",
+						"responses",
+						"certificates",
+						"3"
+					]
+				},
+				"description": "Streams a certificate PDF file from Firebase Storage to the client.  \nIf the certificate exists and is successfully fetched from Firebase, returns the file as an attachment with the original file name.\n\n- If the certificate is not found in the database, returns a 404 JSON error.\n    \n- If the file cannot be fetched from Firebase, returns a 500 JSON error."
+			},
+			"response": []
+		},
+		{
+			"name": "/api/surveys",
+			"request": {
+				"auth": {
+					"type": "inherit"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/surveys",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"surveys"
+					]
+				},
+				"description": "This route provides access to all surveys in the system. When a `GET` request is sent to `/surveys`, it queries the database for every record in the `Survey` table.\n\nIf no surveys are found, the API responds with a `404 Not Found` and a relevant message. Otherwise, all surveys are serialized into a JSON-friendly format and returned with a `200 OK` status.\n\nThis endpoint is useful for displaying available surveys to users, regardless of who created them."
+			},
+			"response": []
+		},
+		{
+			"name": "/api/surveys/user-surveys",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NDY3MzQ1MywianRpIjoiNzUwYjhkZmEtODAzYy00Y2M2LTg2N2ItNGI1MTFiMDBhZWRlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDQ2NzM0NTMsImNzcmYiOiJhNTUyNTM1Ny0yZTNkLTQ1YTMtODA5YS01ODMwNjcwYmJjZDgiLCJleHAiOjE3NDQ2NzQzNTN9.ipLs9Rzsv1MvAQ_Zv2GOyvChxHKF8I0hivQKpuSs6y8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/api/surveys/user-surveys",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"surveys",
+						"user-surveys"
+					]
+				},
+				"description": "This endpoint retrieves all surveys created by the currently authenticated user. When a `GET` request is made to `/surveys/user-surveys`, the user's identity is extracted from the JWT token using `get_jwt_identity()`.\n\nThe system queries the `Survey` model for records where the `created_by` field matches the user's ID. If no surveys are found, a `404 Not Found` response is returned with an appropriate message. If surveys exist, they are serialized and returned in a JSON response with a `200 OK` status.\n\nThis route allows users to manage and view only the surveys they have created, ensuring privacy and proper access control."
+			},
+			"response": []
+		}
+	]
+}
