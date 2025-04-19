@@ -9,6 +9,7 @@
 ## 🧠 Project Purpose
 
 This is a simple survey application that allows users to:
+
 - Create survey questions
 - Respond to survey questions
 - Submit their responses (including PDF certificate uploads)
@@ -31,6 +32,7 @@ This is a simple survey application that allows users to:
 ## 🧪 Postman Collection
 
 All API endpoints and sample requests are available in the provided Postman collection:
+
 - [Postman Workspace](https://dark-shuttle-668211.postman.co/workspace/My-Workspace~9d927184-69f9-4b4c-8978-451fb98f15bf/collection/40619222-4b047217-e5c4-4277-a01d-00ae2d15b976?action=share&creator=40619222)
 - [Postman JSON File](./documents/simple-survey-api.postman_collection.json)
 
@@ -41,11 +43,19 @@ All API endpoints and sample requests are available in the provided Postman coll
 - **DBMS**: PostgreSQL
 - **Database Name**: `sky_survey_db`
 - **ERD Diagram**: [`/documents/ERD_diagram_Simple_Survey_API.png`](./documents/ERD_diagram_Simple_Survey_API.png)
-- **SQL Schema**: [`/documents/sky_survey_db_schema.sql`](./documents/sky_survey_db_schema.sql)
+- **Flow Chart**: [`/documents/flowchart_Simple_Survey_API.png`](./documents/flowchart_Simple_Survey_API.png)
+- **SQL Schema**: [`/database/sky_survey_db_schema.sql`](./database/sky_survey_db_schema.sql)
+
+To create the tables using the schema:
+
+```bash
+psql -U your_username -d sky_survey_db -f ./documents/sky_survey_db_schema.sql
+```
 
 ---
 
 ## 🔧 Project Structure
+
 ```
 simple-survey-api/
 ├── app.py
@@ -70,9 +80,10 @@ simple-survey-api/
 │   └── jazaform_firebase_secrets.json
 ├── documents/
 │   ├── sky_survey_db_schema.sql
+│   ├── flowchart_Simple_Survey_API.png
+│   ├── Simple_Survey_Data_flow_Diagram.png
+│   ├── sky_survey_api.postman_collection.json
 │   └── ERD_diagram_Simple_Survey_API.png
-├── postman/
-│   └── sky_survey_api.postman_collection.json
 ├── .env
 ├── requirements.txt
 └── README.md
@@ -81,33 +92,46 @@ simple-survey-api/
 ---
 
 ## 📄 .env Configuration
+
 ```env
-DATABASE_URL=postgresql://sky_survey_db_9xg7_user:1vS6SRcrlOyChQh0v2eLJj4iTw4RFHck@dpg-cvv9bt6uk2gs73caa7ag-a.oregon-postgres.render.com/sky_survey_db_9xg7
-SECRET_KEY=your_secret_key
+#  Database connection URL (PostgreSQL format)
+DATABASE_URL=postgresql://username:password@host:port/dbname
+
+#  Flask secret key for session and form security
+SECRET_KEY=your_flask_secret_key
+
+#  JWT secret key for token signing (e.g., auth)
 JWT_SECRET_KEY=your_jwt_secret_key
+
+#  Flask environment (development | production | testing)
 FLASK_ENV=production
-FIREBASE_CREDENTIALS_B64=PASTE_IT_HERE
+
+#  Firebase credentials encoded in base64 (used to init Firebase SDK)
+FIREBASE_CREDENTIALS_B64=BASE64_ENCODED_SERVICE_ACCOUNT_JSON
 ```
+
 > 🔐 The Firebase credentials should be stored as a Base64 string in the `.env` file and loaded inside `firebase_config.py`. To convert your Firebase JSON to Base64, run:
+
 ```bash
 base64 -i secrets/jazaform_firebase_secrets.json -o encoded.txt
 ```
+
 Then, copy the contents of `encoded.txt` into `FIREBASE_CREDENTIALS_B64`.
 
 ---
 
 ## 🤩️ Folder & File Purpose
 
-| Path                           | Description                          |
-|-------------------------------|--------------------------------------|
-| `app.py`                      | Flask app entry point                |
-| `models/`                     | Database models                      |
-| `routes/authentication.py`    | User authentication logic            |
-| `routes/questions.py`         | Endpoints for managing questions     |
-| `routes/survey.py`           | Survey response and file uploads     |
-| `firebase_config.py`          | Firebase integration for storage     |
-| `seed.py`                     | Populate DB with test data           |
-| `secrets/`                    | Holds Firebase credential file       |
+| Path                       | Description                      |
+| -------------------------- | -------------------------------- |
+| `app.py`                   | Flask app entry point            |
+| `models/`                  | Database models                  |
+| `routes/authentication.py` | User authentication logic        |
+| `routes/questions.py`      | Endpoints for managing questions |
+| `routes/survey.py`         | Survey response and file uploads |
+| `firebase_config.py`       | Firebase integration for storage |
+| `seed.py`                  | Populate DB with test data       |
+| `secrets/`                 | Holds Firebase credential file   |
 
 ---
 
@@ -154,6 +178,7 @@ flask run
 ## 🌍 Deployment on Render
 
 1. Push your code to GitHub:
+
 ```bash
 git add .
 git commit -m "deploy-ready"
@@ -184,5 +209,4 @@ git push origin main
 - **Portfolio**: [My Portfolio](https://raddamestonui.netlify.app/)
 
 ---
-
 
