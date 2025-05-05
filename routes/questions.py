@@ -196,7 +196,7 @@ def get_user_surveys_answers():
 
     # Apply email filter directly on the email_address field
     if email_filter:
-        query = query.filter(Submission.email_address.ilike(f"%{email_filter}%"))
+        query = query.filter(Submission.email_address.ilike(f"%{email_filter}%"))  # Case-insensitive search
 
     # Pagination
     paginated = query.paginate(page=page, per_page=per_page, error_out=False)

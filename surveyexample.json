@@ -1,0 +1,85 @@
+{
+  "id": 1,
+  "title": "Developer Skills Survey",
+  "description": "A survey to assess the skills of developers.",
+  "questions": [
+    {
+      "id": 1,
+      "survey_id": 1,
+      "name": "full_name",
+      "text": "What is your full name?",
+      "description": "[Surname] [First Name] [Other Names]",
+      "type": "text",
+      "required": true,
+      "order": 1
+    },
+    {
+      "id": 2,
+      "survey_id": 1,
+      "name": "email_address",
+      "text": "What is your email address?",
+      "description": "",
+      "type": "email",
+      "required": true,
+      "order": 2
+    },
+    {
+      "id": 3,
+      "survey_id": 1,
+      "name": "description",
+      "text": "Tell us a bit more about yourself",
+      "description": "",
+      "type": "textarea",
+      "required": true,
+      "order": 3
+    },
+    {
+      "id": 4,
+      "survey_id": 1,
+      "name": "gender",
+      "text": "What is your gender?",
+      "description": "",
+      "type": "radio",
+      "required": true,
+      "order": 4,
+      "options": [
+        { "id": 1, "question_id": 4, "value": "Male" },
+        { "id": 2, "question_id": 4, "value": "Female" },
+        { "id": 3, "question_id": 4, "value": "Other" }
+      ]
+    },
+    {
+      "id": 5,
+      "survey_id": 1,
+      "name": "programming_stack",
+      "text": "What programming stack are you familiar with?",
+      "description": "You can select multiple",
+      "type": "checkbox",
+      "required": true,
+      "order": 5,
+      "options": [
+        { "id": 4, "question_id": 5, "value": "React JS" },
+        { "id": 5, "question_id": 5, "value": "Angular JS" },
+        { "id": 6, "question_id": 5, "value": "Vue JS" },
+        { "id": 7, "question_id": 5, "value": "SQL" },
+        { "id": 8, "question_id": 5, "value": "Postgres" },
+        { "id": 9, "question_id": 5, "value": "MySQL" },
+        { "id": 10, "question_id": 5, "value": "MSSQL" },
+        { "id": 11, "question_id": 5, "value": "Java" },
+        { "id": 12, "question_id": 5, "value": "PHP" },
+        { "id": 13, "question_id": 5, "value": "Go" },
+        { "id": 14, "question_id": 5, "value": "Rust" }
+      ]
+    },
+    {
+      "id": 6,
+      "survey_id": 1,
+      "name": "certificates",
+      "text": "Upload any of your certificates?",
+      "description": "You can upload multiple (.pdf)",
+      "type": "file",
+      "required": true,
+      "order": 6
+    }
+  ]
+}

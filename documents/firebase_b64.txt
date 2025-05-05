@@ -2,3 +2,12 @@ ewogICJ0eXBlIjogInNlcnZpY2VfYWNjb3VudCIsCiAgInByb2plY3RfaWQiOiAic2hlcmlhLTM2NSIs
 
 base64 -w 0 secrets/jazaform_firebase_secrets.json > firebase_b64.txt
 FIREBASE_CREDENTIALS_B64=PASTE_IT_HERE
+
+
+docker run --name jazafom-postgres   
+    -e POSTGRES_USER=admin   
+    -e POSTGRES_PASSWORD=123   
+    -e POSTGRES_DB=sky_survey_db   
+    -p 5432:5432   
+    -v pgdata:/var/lib/postgresql/data   
+    -d postgres:latest
