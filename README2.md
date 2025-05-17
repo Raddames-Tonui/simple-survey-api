@@ -6,3 +6,6 @@ docker run -d \
   -p 5432:5432 \
   -v sky_survey_pgdata:/var/lib/postgresql/data \
   postgres:latest
+
+
+  docker exec -it sky_survey_postgres psql -U admin -d sky_survey_postgres
