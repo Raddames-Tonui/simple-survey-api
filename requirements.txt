@@ -54,7 +54,7 @@ requests-oauthlib==2.0.0
 rsa==4.9
 setuptools==70.3.0
 SQLAlchemy>=2.0.35
-sqlalchemy-serializer>=2.0.0
+sqlalchemy-serializer==1.6.3
 typing_extensions==4.13.1
 tzdata==2025.2
 uritemplate==4.1.1
